@@ -1,4 +1,4 @@
-
+import random
 
 class SudokuGenerator:
 	def __init__(self, row_length, removed_cells):
@@ -52,13 +52,21 @@ class SudokuGenerator:
 				return True
 
 
-	def is_valid(self, row, col, num):
-
+	def is_valid(self, row, col, num):  # determine if it is valid to enter num (checks row col and box)
+		if self.valid_in_box and self.valid_in_row and self.valid_in_col == True:
+			return True # if all are valid then function is True
+		else:
+			return False
 
 	def fill_box(self, row_start, col_start):
-		pass
+		for i in range(row_start, row_start + 2): # defines 3x3 box
+			if self.board[row_start][i] is self.valid_in_box:
+				print(random.randint(1,9))
+		for i in range(col_start, col_start + 2): # defines box
+			if self.board[i][col_start] is self.valid_in_box:
+				print(random.randint(1,9))
 
-	def fill_diagonal(self):
+	def fill_diagonal(self):  # fills boxes in diagonal
 		pass
 
 	def fill_remaining(self, row, col):  # method was provided on Github, fills remaining cells of the board
@@ -120,7 +128,10 @@ class Cell:
 		pass
 
 	def draw(self):
-		pass
+		if self.value != 0:
+			print(self.value)
+
+
 
 
 class Board:
@@ -129,7 +140,9 @@ class Board:
 		self.height = height
 		self.screen = screen
 		self.difficulty = difficulty
-		# screen = pygame.display.set_mode((width, height)) # displays pop up screen
+		self.board = SudokuGenerator.get_board # gets board, 2D list
+
+
 
 	def draw(self):
 		pass
@@ -155,7 +168,11 @@ class Board:
 		pass
 
 	def is_full(self):
-		pass
+		for row in self.board:  # indicates if board is full or not
+			for value in row:
+				if value == 0:
+					return False
+		return True
 
 	def update_board(self):
 		pass
