@@ -114,22 +114,29 @@ def generate_sudoku(size, removed):  # function outside class, was provided
 
 
 class Cell:
-	def __init__(self, value, row, col, screen):
-		self.value = value
-		self.row = row
-		self.col = col
+	def __init__(self, value, row, col, screen, width, height):  # 81 cells as building block of sudoku board
+		self.value = value  # number in cell
+		self.row = row  # index
+		self.col = col  # index
 		self.screen = screen
+		self.width = width  # 100 for each cell
+		self.height = height # 100 for each cell
 
 
 	def set_cell_value(self, value): # setter for cell's value
-		pass
+		self.value = value
 
 	def set_sketched_value(self, value): # setter for sketeched value
-		pass
+		self.value = value
 
-	def draw(self):
-		if self.value != 0:
-			print(self.value)
+	def draw(self, screen): # draws the cell and value inside of it
+		square_size = 100
+		# enter value inside cell
+		if self.value != 0: # zero means empty cell
+			num_val = self.value  # specifies location
+			num_cell = num_val.get_rect(center=(self.col * square_size + square_size // 2, self.row * square_size + square_size // 2))
+			screen.blit(num_val, num_cell)  # adds number onto screen
+
 
 
 

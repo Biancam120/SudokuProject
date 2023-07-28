@@ -1,17 +1,16 @@
-import pygame
+import pygame, sys
 from sudoku_generator import *
-import pygame
 
-pygame.init()
+pygame.init()  # pygame is only used in this file
 
 width = 900
 height = 900  # each square will be 100
 BG_COLOR = (191, 239, 255)
-square_size = 300
+square_size = 100  # 900 / 9 squares
 line_width = 5
 row_length = 9
 col_length = 9
-screen = pygame.display.set_mode((width, height))
+screen = pygame.display.set_mode((width, height))  # creates black pop-up window
 line_color = (0, 0, 0)
 NUM_FONT = 100
 number_font = pygame.font.Font(None, NUM_FONT)
@@ -19,9 +18,7 @@ number_color = (0, 0, 0)
 
 
 def main():  # contains code to create different screens of project
-	pygame.init()
 	pygame.display.set_caption("")
-	screen = pygame.display.set_mode((width, height))  # created black pop-up window
 	screen.fill(BG_COLOR)  # changes background color
 
 	for i in range(1, row_length):  # draws 8 horizonatal lines, 9 rows
@@ -38,6 +35,8 @@ def main():  # contains code to create different screens of project
 			if event.type ==pygame.MOUSEBUTTONDOWN:  # for selecting square?
 				x, y = event.pos
 				row, col = y // square_size, x // square_size
+
+		pygame.display.update()
 
 
 if __name__ == '__main__':
