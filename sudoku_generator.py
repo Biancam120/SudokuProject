@@ -1,6 +1,4 @@
 import random
-import pygame
-import sys
 
 class SudokuGenerator:
 	def __init__(self, row_length, removed_cells):
@@ -168,21 +166,16 @@ class Board:
 
 	def draw(self):
 		# create the outline of the grind and the cells, embolden the 3x3 boxes
-		for lines in range(10):
-			thickness = 4 if lines % 3 == 0 else 1
-
-			start_point = (0, lines * self.height // 9)
-			end_point = (self.width, lines * self.height // 9)
-			pygame.draw.line(self.screen, (0, 0, 0), start_point, end_point, thickness)
-
-			start_point = (lines * self.width // 9, 0)
-			end_point = (lines * self.width // 9, self.height)
-			pygame.draw.line(self.screen, (0, 0, 0), start_point, end_point, thickness)
-
-		# draw the cells
-		for row in self.cells:
-			for cell in row:
-				cell.draw(self.screen)
+		for row in range(9):
+			if row % 3 == 0:
+				print("+" + "-" * 23 + "+")
+			for col in range(9):
+				if col % 3 == 0:
+					print("|", end=" ")
+				cell_value = self.cells[row][col].value
+				print(" " if cell_value == 0 else cell_value, end=" ")
+			print("|")
+		print("+" + "-" * 23 + "+")
 
 	def select(self, row, col):
 		self.selected_cell = self.cells[row][col]
