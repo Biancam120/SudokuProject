@@ -1,4 +1,6 @@
 import random
+import pygame
+import sys
 
 class SudokuGenerator:
 	def __init__(self, row_length, removed_cells):
@@ -17,15 +19,14 @@ class SudokuGenerator:
 		for col in range(self.row_length):  # looks through 9 col
 			if self.board[row][col] == num:  # determines if num is in given row of the board
 				return False
-			else:
-				return True
+		# modified to check whole col, will do the same for col, box, and is valid
+		return True
 
 	def valid_in_col(self, col, num):
 		for row in range(self.row_length):  # looks through 9 rows
 			if self.board[row][col] == num: # determines if num is in given col
 				return False
-			else:
-				return True
+		return True
 
 	def valid_in_box(self, row_start, col_start, num):
 		# for row in range(row_start, row_start + 2):
@@ -39,6 +40,17 @@ class SudokuGenerator:
 		# 	else:
 		# 		return True
 
+		'''
+		I was checking the code here and I don't think it'll check all boxes but rather cut off when it finds a true
+		condition, but I'm not sure, therefore, I'll simply put the code I think works in this comment, and we can test
+		it when we test run the full program
+
+		for i in range(3):
+			for j in range(3):
+				if self.board[row_start + i][col_start + j] == num:
+					return False
+		return True
+		'''
 		for i in range(row_start, row_start + 2): # runs through the 3 rows in the box
 			if self.board[row_start][i] == num:  # fixes row and checks each column
 				return False
@@ -55,8 +67,7 @@ class SudokuGenerator:
 	def is_valid(self, row, col, num):  # determine if it is valid to enter num (checks row col and box)
 		if self.valid_in_box and self.valid_in_row and self.valid_in_col == True:
 			return True # if all are valid then function is True
-		else:
-			return False
+		return False
 
 	def fill_box(self, row_start, col_start):
 		for i in range(row_start, row_start + 2): # defines 3x3 box
@@ -67,10 +78,13 @@ class SudokuGenerator:
 				print(random.randint(1,9))
 
 	def fill_diagonal(self):  # fills boxes in diagonal
-		pass
+		# fill the top left box, middle box, then bottom right box (0 to 3 to 6)
+		self.fill_box(0, 0)
+		self.fill_box(3, 3)
+		self.fill_box(6, 6)
 
 	def fill_remaining(self, row, col):  # method was provided on Github, fills remaining cells of the board
-		if (col >= self.row_length and row < self.row_length - 1):
+		if col >= self.row_length and row < self.row_length - 1:
 			row += 1
 			col = 0
 		if row >= self.row_length and col >= self.row_length:
@@ -105,9 +119,9 @@ class SudokuGenerator:
 
 
 def generate_sudoku(size, removed):  # function outside class, was provided
+	# I removed the first instance of get board as it would simply make remove_cells do nothing
 	sudoku = SudokuGenerator(size, removed) # created a SudokuGenerator
 	sudoku.fill_values() # fills values and saves it as the solved state
-	board = sudoku.get_board()
 	sudoku.remove_cells() # removes cells depending on difficulty
 	board = sudoku.get_board()
 	return board  # returns 2D lists to make board with its solution
@@ -121,7 +135,6 @@ class Cell:
 		self.screen = screen
 		self.width = width  # 100 for each cell
 		self.height = height # 100 for each cell
-
 
 	def set_cell_value(self, value): # setter for cell's value
 		self.value = value
@@ -137,8 +150,10 @@ class Cell:
 			num_cell = num_val.get_rect(center=(self.col * square_size + square_size // 2, self.row * square_size + square_size // 2))
 			screen.blit(num_val, num_cell)  # adds number onto screen
 
-
-
+	def update_value(self):
+		# I'm adding this in to allow me to program update_board in the board class
+		if self.value < 0:
+			self.value *= -1
 
 
 class Board:
@@ -147,46 +162,103 @@ class Board:
 		self.height = height
 		self.screen = screen
 		self.difficulty = difficulty
-		self.board = SudokuGenerator.get_board # gets board, 2D list
-
-
+		# cells variables will be tracked to make coloring of cells and such easier
+		self.cells = [[Cell(0, row, col, screen, width, height) for col in range(9)] for row in range(9)]
+		self.selected_cell = None
 
 	def draw(self):
-		pass
+		# create the outline of the grind and the cells, embolden the 3x3 boxes
+		for lines in range(10):
+			thickness = 4 if lines % 3 == 0 else 1
+
+			start_point = (0, lines * self.height // 9)
+			end_point = (self.width, lines * self.height // 9)
+			pygame.draw.line(self.screen, (0, 0, 0), start_point, end_point, thickness)
+
+			start_point = (lines * self.width // 9, 0)
+			end_point = (lines * self.width // 9, self.height)
+			pygame.draw.line(self.screen, (0, 0, 0), start_point, end_point, thickness)
+
+		# draw the cells
+		for row in self.cells:
+			for cell in row:
+				cell.draw(self.screen)
 
 	def select(self, row, col):
-		pass
+		self.selected_cell = self.cells[row][col]
 
 	def click(self, x, y):
-		pass
+		# return tuple coordinates IF the cell has one
+		row = y // (self.height // 9)
+		col = x // (self.width // 9)
+		if 0 <= row < 9 and 0 <= col < 9:
+			return row, col
+		else:
+			return None
 
 	def clear(self):
-		pass
+		# empty out the current cell, only if not a predetermined cell
+		if self.selected_cell:
+			if self.selected_cell.value == 0:
+				self.selected_cell.set_cell_value(0)
+				self.selected_cell.set_sketched_value(None)
 
 	def sketch(self, value):
-		pass
+		# put in the sketched value
+		if self.selected_cell:
+			self.selected_cell.set_sketched_value(value)
 
 	def place_number(self, value):
-		num_placed = number_font.render(num_inputted_variable, 0, number_color)
-		num_location = num_placed.get_rect(# selected box)
-		# use screen.blit() to place num of screen
+		if self.selected_cell:
+			self.selected_cell.set_cell_value(value)
 
 	def reset_to_original(self):
-		pass
+		# set all the cells back to original values
+		for row in range(9):
+			for col in range(9):
+				if self.cells[row][col].value == 0:
+					self.cells[row][col].set_cell_value(0)
 
 	def is_full(self):
-		for row in self.board:  # indicates if board is full or not
-			for value in row:
-				if value == 0:
+		for row in self.cells:  # indicates if board is full or not
+			for cell in row:
+				if cell.value == 0:		# I replaced cell with value to use to value command
 					return False
 		return True
 
 	def update_board(self):
-		pass
+		for row in self.cells:
+			for cell in row:
+				cell.update_value()
 
 	def find_empty(self):
-		pass
+		# find an empty and return its row and col
+		for row in range(9):
+			for col in range(9):
+				if self.cells[row][col].value == 0:
+					return row, col
+		return None
 
 	def check_board(self):
-		pass
+		# check if the Sudoku board is solved correctly
+		for i in range(9):
+			row_values = set()
+			col_values = set()
+			box_values = set()
+
+			for j in range(9):
+				if self.cells[i][j].value in row_values:
+					return False
+				row_values.add(self.cells[i][j].value)
+
+				if self.cells[j][i].value in col_values:
+					return False
+				col_values.add(self.cells[j][i].value)
+
+				box_row = 3 * (i // 3) + j // 3
+				box_col = 3 * (i % 3) + j % 3
+				if self.cells[box_row][box_col].value in box_values:
+					return False
+				box_values.add(self.cells[box_row][box_col].value)
+		return True
 
