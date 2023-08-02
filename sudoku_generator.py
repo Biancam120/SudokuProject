@@ -100,15 +100,15 @@ class SudokuGenerator:
 				self.board[row][col] = 0
 		return False  # True if board could be solved
 
-	def fill_values(self):  # method was provided, constructs solution bby filling boxes
+	def fill_values(self):  # method was provided, constructs solution by filling boxes
 		self.fill_diagonal()
 		self.fill_remaining(0, self.box_length)
 
 	def remove_cells(self):  # sets values to zero, called after solution is constructed
 		# doesn't remove cells that are already 0
-		for i in range(removed_cells):
-			row = random.randint(0, 8)
-			col = random.randint(0, 8)
+		for i in range(self.removed_cells):  # removes amount defined by difficulty
+			row = random.randint(0, 8)  # creates random row
+			col = random.randint(0, 8)  # creates random col
 			while self.board[row][col] == 0:
 				row = random.randint(0, 8)
 				col = random.randint(0, 8)
