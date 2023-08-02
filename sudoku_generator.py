@@ -106,10 +106,10 @@ class SudokuGenerator:
 
 	def remove_cells(self):  # sets values to zero, called after solution is constructed
 		# doesn't remove cells that are already 0
-		for i in range(self.removed_cells):  # removes amount defined by difficulty
+		for i in range(self.removed_cells):  # removes amount defined by difficulty, runs that amount of times
 			row = random.randint(0, 8)  # creates random row
 			col = random.randint(0, 8)  # creates random col
-			while self.board[row][col] == 0:
+			if self.board[row][col] == 0:
 				row = random.randint(0, 8)
 				col = random.randint(0, 8)
 			self.board[row][col] = 0
