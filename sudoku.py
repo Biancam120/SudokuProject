@@ -18,6 +18,7 @@ number_color = (0, 0, 0)
 
 
 def draw_menu_screen():
+    pygame.display.set_caption("Sudoku Menu")
     text_color = (0, 0, 0)
     title_font = pygame.font.Font(None, 100)
     select_font = pygame.font.Font(None, 75)
@@ -95,9 +96,10 @@ def draw_lines():
 
 def main():  # contains code to create different screens of project
     draw_menu_screen()
-    pygame.display.set_caption("Sudoku")
+    pygame.display.set_caption("Sudoku Game")
     screen.fill(BG_COLOR)  # changes background color
     draw_lines()
+    generate_sudoku(9, 0)
 
     while True:
         for event in pygame.event.get():
