@@ -22,58 +22,50 @@ class SudokuGenerator:
 
 	def valid_in_col(self, col, num):
 		for row in range(self.row_length):  # looks through 9 rows
-			if self.board[row][col] == num: # determines if num is in given col
+			if self.board[row][col] == num:  # determines if num is in given col
 				return False
 		return True
 
 	def valid_in_box(self, row_start, col_start, num):
-		# for row in range(row_start, row_start + 2):
-		# 	if self.board[row][col_start] == num: # when you fix the row you look at all the columns
-		# 		return False
-		# 	else:
-		# 		return True
-		# for col in range(col_start, col_start + 2):
-		# 	if self.board[row_start][col] == num:
-		# 		return False
-		# 	else:
-		# 		return True
 
 		'''
 		I was checking the code here and I don't think it'll check all boxes but rather cut off when it finds a true
 		condition, but I'm not sure, therefore, I'll simply put the code I think works in this comment, and we can test
-		it when we test run the full program
+		it when we test run the full program '''
 
 		for i in range(3):
 			for j in range(3):
 				if self.board[row_start + i][col_start + j] == num:
 					return False
 		return True
-		'''
-		for i in range(row_start, row_start + 2): # runs through the 3 rows in the box
-			if self.board[row_start][i] == num:  # fixes row and checks each column
-				return False
-			else:
-				return True
 
-		for i in range(col_start, col_start + 2): # runs through the 3 columns in the box
-			if self.board[i][col_start] == num: # fixes column and checks each row for number
-				return False
-			else:
-				return True
-
+		# for i in range(row_start, row_start + 2): # runs through the 3 rows in the box
+		# 	if self.board[row_start][i] == num:  # fixes row and checks each column
+		# 		return False
+		# 	else:
+		# 		return True
+		#
+		# for i in range(col_start, col_start + 2): # runs through the 3 columns in the box
+		# 	if self.board[i][col_start] == num: # fixes column and checks each row for number
+		# 		return False
+		# 	else:
+		# 		return True
 
 	def is_valid(self, row, col, num):  # determine if it is valid to enter num (checks row col and box)
-		if self.valid_in_box and self.valid_in_row and self.valid_in_col == True:
-			return True # if all are valid then function is True
+		if self.board[row][col] == 0:  # means it is empty
+			for i in range(row):  # checks row
+				for j in range(col):
+					if self.board[row][i] != num and self.board[j][col] != num:
+						return True  # if all are valid then function is True
 		return False
 
 	def fill_box(self, row_start, col_start):
-		for i in range(row_start, row_start + 2): # defines 3x3 box
+		for i in range(row_start, row_start + 2):  # defines 3x3 box
 			if self.board[row_start][i] is self.valid_in_box:
-				print(random.randint(1,9))
-		for i in range(col_start, col_start + 2): # defines box
+				print(random.randint(0, 8))
+		for i in range(col_start, col_start + 2):  # defines box
 			if self.board[i][col_start] is self.valid_in_box:
-				print(random.randint(1,9))
+				print(random.randint(0, 8))
 
 	def fill_diagonal(self):  # fills boxes in diagonal
 		# fill the top left box, middle box, then bottom right box (0 to 3 to 6)
@@ -113,14 +105,23 @@ class SudokuGenerator:
 		self.fill_remaining(0, self.box_length)
 
 	def remove_cells(self):  # sets values to zero, called after solution is constructed
-		self.removed_cells = 0
+		# doesn't remove cells that are already 0
+		for i in range(removed_cells):
+			row = random.randint(0, 8)
+			col = random.randint(0, 8)
+			while self.board[row][col] == 0:
+				row = random.randint(0, 8)
+				col = random.randint(0, 8)
+			self.board[row][col] = 0
+
+
 
 
 def generate_sudoku(size, removed):  # function outside class, was provided
 	# I removed the first instance of get board as it would simply make remove_cells do nothing
 	sudoku = SudokuGenerator(size, removed) # created a SudokuGenerator
-	sudoku.fill_values() # fills values and saves it as the solved state
-	sudoku.remove_cells() # removes cells depending on difficulty
+	sudoku.fill_values()  # fills values and saves it as the solved state
+	sudoku.remove_cells()  # removes cells depending on difficulty
 	board = sudoku.get_board()
 	return board  # returns 2D lists to make board with its solution
 
@@ -134,7 +135,7 @@ class Cell:
 		self.width = width  # 100 for each cell
 		self.height = height # 100 for each cell
 
-	def set_cell_value(self, value): # setter for cell's value
+	def set_cell_value(self, value):  # setter for cell's value
 		self.value = value
 
 	def set_sketched_value(self, value): # setter for sketeched value
