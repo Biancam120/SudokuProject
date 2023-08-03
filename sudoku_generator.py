@@ -51,9 +51,12 @@ class SudokuGenerator:
 		for i in range(row_start, row_start + 3):  # defines 3x3 box
 			for j in range(col_start, col_start + 3):
 				if self.board[i][j] == 0:  # if empty
-					num = random.randint(1, 9)  # generate number
-					if self.valid_in_box(row_start, col_start, num):
-						self.board[i][j] = num
+					#While loop to guarentee that the cell is filled
+					while True:
+						num = random.randint(1, 9)  # generate number
+						if self.valid_in_box(row_start, col_start, num):
+							self.board[i][j] = num
+							break
 
 	def fill_diagonal(self):  # fills boxes in diagonal (NOT working)
 		# fill the top left box, middle box, then bottom right box (0 to 3 to 6)
@@ -93,9 +96,9 @@ class SudokuGenerator:
 		self.fill_remaining(0, self.box_length)
 
 	def remove_cells(self):  # sets values to zero, called after solution is constructed
-		count = 0
-		for i in range(self.removed_cells):  # removing 31 cells instead of 30
-			if self.removed_cells > count:
+		count = 1
+		#While loop to make sure that the amount of cells removed is equal to self.removed_cells
+		while self.removed_cells >= count:
 				row = random.randint(0, 8)  # creates random row
 				col = random.randint(0, 8)  # creates random col
 				if self.board[row][col] != 0:
