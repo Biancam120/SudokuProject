@@ -6,7 +6,7 @@ pygame.init()  # pygame is only used in this file
 width = 900
 height = 1000  # each square will be 100
 BG_COLOR = (191, 239, 255)
-square_size = 700/9  # 900 / 9 squares
+square_size = 700 / 9  # 900 / 9 squares
 line_width = 5
 row_length = 9
 col_length = 9
@@ -15,6 +15,7 @@ line_color = (0, 0, 0)
 NUM_FONT = 100
 number_font = pygame.font.Font(None, NUM_FONT)
 number_color = (0, 0, 0)
+RED = (255, 0, 0)
 
 
 def draw_menu_screen():
@@ -139,7 +140,7 @@ def main():  # contains code to create different screens of project
             if event.type == pygame.QUIT:
                 pygame.quit()  # can close window
                 sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN:  # might need to add and not is_full
                 if resetvar.collidepoint(event.pos):
                     screen.fill(BG_COLOR)  # changes background color
                     draw_lines()
@@ -151,14 +152,17 @@ def main():  # contains code to create different screens of project
                 elif exitvar.collidepoint(event.pos):
                     pygame.quit()
                     sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN:  # might need to add and not is_full
                 # the code below uses a mouse click to select a square
                 x, y = event.pos
                 row, col = y // square_size, x // square_size
 
                 if 0 <= row < 9 and 0 <= col < 9:
-                    selected_cell = sudokuboard.cells[row][col]
+                    board = Board.select(row, col)
+                    selected_cell = board(row, col)
                     sudokuboard.selected_cell = selected_cell
+                    sudokuboard.selected_cell = pygame.draw.rect(screen, RED, pygame.Rect(col * square_size, row * square_size), (square_size, square_size), line_width)
+                    # draws a red rectangle around selected cell
                 else:
                     sudokuboard.selected_cell = None
 
