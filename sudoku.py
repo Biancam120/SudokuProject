@@ -4,9 +4,9 @@ from sudoku_generator import *
 pygame.init()  # pygame is only used in this file
 
 width = 900
-height = 900  # each square will be 100
+height = 1000  # each square will be 100
 BG_COLOR = (191, 239, 255)
-square_size = 100  # 900 / 9 squares
+square_size = 700/9  # 900 / 9 squares
 line_width = 5
 row_length = 9
 col_length = 9
@@ -69,43 +69,80 @@ def draw_menu_screen():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if easy_rectangle.collidepoint(event.pos):
                     # set easy difficulty code here
-                    return
+                    return 30
                 elif medium_rectangle.collidepoint(event.pos):
                     # set medium difficulty code here
-                    return
+                    return 40
                 elif hard_rectangle.collidepoint(event.pos):
                     # hard difficulty code here
-                    return
+                    return 50
         pygame.display.update()
 
 
 def draw_lines():
-    for i in range(1, row_length):  # draws 8 horizontal lines, 9 rows
+    for i in range(0, row_length + 1):  # draws 8 horizontal lines, 9 rows
         if i % 3 == 0:  # if statement to make every 3rd line thicker for visual purposes
-            pygame.draw.line(screen, line_color, (0, i * square_size), (width, i * square_size),
+            pygame.draw.line(screen, line_color, (100, (i * square_size) + 100), (width-100, (i * square_size) + 100),
                              line_width + 4)  # assuming screen 900 x 900
         else:
-            pygame.draw.line(screen, line_color, (0, i * square_size), (width, i * square_size), line_width)
+            pygame.draw.line(screen, line_color, (100, (i * square_size) + 100), (width-100, (i * square_size) + 100), line_width)
 
-    for i in range(1, col_length):  # draws 8 vertical lines
+    for i in range(0, col_length + 1):  # draws 8 vertical lines
         if i % 3 == 0:  # if statement to make every 3rd line thicker for visual purposes
-            pygame.draw.line(screen, line_color, (i * square_size, 0), (i * square_size, height), line_width + 4)
+            pygame.draw.line(screen, line_color, ((i * square_size) + 100, 100), ((i * square_size) + 100, height - 200), line_width + 4)
         else:
-            pygame.draw.line(screen, line_color, (i * square_size, 0), (i * square_size, height), line_width)
+            pygame.draw.line(screen, line_color, ((i * square_size) + 100, 100), ((i * square_size) + 100, height - 200), line_width)
 
+def display_values(board):
+    #offset to fit numbers in boxes
+    offset = 110
+    for i in range(0,9):
+        for j in range(0,9):
+            output = board[i][j]
+            #checks if the box is filled
+            if output > 0:
+                n_text = number_font.render(str(output), True, pygame.Color('black'))
+                screen.blit(n_text, pygame.Vector2((j * square_size) + offset, (i * square_size) + offset))
+
+def buttonmaker(name, width, height):
+    exit_text = pygame.font.Font(None, 50).render(name, 0, (0, 0, 0))
+    exit_surface = pygame.Surface((exit_text.get_size()[0] + 20, exit_text.get_size()[
+        1] + 20))  # creates surface that is 20 pixels larger all around the text
+    exit_surface.fill((231, 223, 176))
+    exit_surface.blit(exit_text, (10, 10))  # blits at (10, 10) so its in the middle of the surface box
+    exit_rectangle = exit_surface.get_rect(center=(width, height))
+    screen.blit(exit_surface, exit_rectangle)
+    return exit_rectangle
 
 def main():  # contains code to create different screens of project
-    draw_menu_screen()
+    #difcul used to track amount of
+    difcul = draw_menu_screen()
     pygame.display.set_caption("Sudoku Game")
     screen.fill(BG_COLOR)  # changes background color
     draw_lines()
-    generate_sudoku(9, 0)
+    sudokuboard = generate_sudoku(9, difcul)
+    display_values(sudokuboard)
 
     while True:
+        resetvar = buttonmaker('RESET', width // 2 - 250, height - 150)
+        restartvar = buttonmaker('RESTART', width // 2, height - 150)
+        exitvar = buttonmaker('EXIT', width // 2 + 250, height - 150)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()  # can close window
                 sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if resetvar.collidepoint(event.pos):
+                    screen.fill(BG_COLOR)  # changes background color
+                    draw_lines()
+                    display_values(sudokuboard)
+                    continue
+                elif restartvar.collidepoint(event.pos):
+                    main()
+                    break
+                elif exitvar.collidepoint(event.pos):
+                    pygame.quit()
+                    sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:  # for selecting square?
                 x, y = event.pos
                 row, col = y // square_size, x // square_size
