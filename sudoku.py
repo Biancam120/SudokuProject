@@ -4,9 +4,9 @@ from sudoku_generator import *
 pygame.init()  # pygame is only used in this file
 
 width = 900
-height = 1000  # each square will be 100
+height = 1000
 BG_COLOR = (191, 239, 255)
-square_size = 700 / 9  # 900 / 9 squares
+square_size = 700 / 9
 line_width = 5
 row_length = 9
 col_length = 9
@@ -155,13 +155,12 @@ def main():  # contains code to create different screens of project
             if event.type == pygame.MOUSEBUTTONDOWN:  # might need to add and not is_full
                 # the code below uses a mouse click to select a square
                 x, y = event.pos
-                row, col = y // square_size, x // square_size
+                row, col = (y // square_size) - 1, (x // square_size) - 1
 
                 if 0 <= row < 9 and 0 <= col < 9:
-                    board = Board.select(row, col)
-                    selected_cell = board(row, col)
-                    sudokuboard.selected_cell = selected_cell
-                    sudokuboard.selected_cell = pygame.draw.rect(screen, RED, pygame.Rect(col * square_size, row * square_size), (square_size, square_size), line_width)
+                    # board.select(row, col)
+                    pygame.draw.rect(screen, RED, (x, y, width, height))
+                    pygame.display.update()
                     # draws a red rectangle around selected cell
                 else:
                     sudokuboard.selected_cell = None
