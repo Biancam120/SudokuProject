@@ -155,15 +155,13 @@ def main():  # contains code to create different screens of project
             if event.type == pygame.MOUSEBUTTONDOWN:  # might need to add and not is_full
                 # the code below uses a mouse click to select a square
                 x, y = event.pos
-                row, col = (y // square_size) - 1, (x // square_size) - 1
+                row, col = (y // square_size) - 1, (x // square_size) - 1  # "- 1" so it is from 0 to 8 (9 total cells)
 
                 if 0 <= row < 9 and 0 <= col < 9:
-                    # board.select(row, col)
+                    # board.select(row, col) # works if board class is implemented
                     pygame.draw.rect(screen, RED, (x, y, width, height))
                     pygame.display.update()
                     # draws a red rectangle around selected cell
-                else:
-                    sudokuboard.selected_cell = None
 
         screen.fill(BG_COLOR)
         draw_lines()
