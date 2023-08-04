@@ -38,6 +38,12 @@ def draw_menu_screen():
     mode_rect = mode_surf.get_rect(center=(width // 2, height - 400))
     screen.blit(mode_surf, mode_rect)
 
+    # display the mark toggle option
+    toggle_text = "Press Shift to Toggle Marker Mode"
+    toggle_surf = select_font.render(toggle_text, 0, text_color)
+    toggle_rect = toggle_surf.get_rect(center=(width // 2, height - 600))
+    screen.blit(toggle_surf, toggle_rect)
+
     # easy button code
     easy_text = button_font.render("EASY", 0, text_color)
     easy_surface = pygame.Surface((easy_text.get_size()[0] + 20, easy_text.get_size()[1] + 20))  # creates surface that is 20 pixels larger all around the text
@@ -104,6 +110,7 @@ def display_values(board):
                 n_text = number_font.render(str(output), True, pygame.Color('black'))
                 screen.blit(n_text, pygame.Vector2((j * square_size) + offset, (i * square_size) + offset))
 
+
 def buttonmaker(name, width, height):
     exit_text = pygame.font.Font(None, 50).render(name, 0, (0, 0, 0))
     exit_surface = pygame.Surface((exit_text.get_size()[0] + 20, exit_text.get_size()[
@@ -113,6 +120,7 @@ def buttonmaker(name, width, height):
     exit_rectangle = exit_surface.get_rect(center=(width, height))
     screen.blit(exit_surface, exit_rectangle)
     return exit_rectangle
+
 
 def main():  # contains code to create different screens of project
     #difcul used to track amount of
@@ -143,10 +151,20 @@ def main():  # contains code to create different screens of project
                 elif exitvar.collidepoint(event.pos):
                     pygame.quit()
                     sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:  # for selecting square?
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                # the code below uses a mouse click to select a square
                 x, y = event.pos
                 row, col = y // square_size, x // square_size
 
+                if 0 <= row < 9 and 0 <= col < 9:
+                    selected_cell = sudokuboard.cells[row][col]
+                    sudokuboard.selected_cell = selected_cell
+                else:
+                    sudokuboard.selected_cell = None
+
+        screen.fill(BG_COLOR)
+        draw_lines()
+        display_values(sudokuboard)
         pygame.display.update()
 
 
