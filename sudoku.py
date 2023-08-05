@@ -47,7 +47,8 @@ def draw_menu_screen():
 
     # easy button code
     easy_text = button_font.render("EASY", 0, text_color)
-    easy_surface = pygame.Surface((easy_text.get_size()[0] + 20, easy_text.get_size()[1] + 20))  # creates surface that is 20 pixels larger all around the text
+    easy_surface = pygame.Surface((easy_text.get_size()[0] + 20, easy_text.get_size()[
+        1] + 20))  # creates surface that is 20 pixels larger all around the text
     easy_surface.fill(button_color)
     easy_surface.blit(easy_text, (10, 10))  # blits at (10, 10) so its in the middle of the surface box
     easy_rectangle = easy_surface.get_rect(center=(width // 2 - 250, height - 200))
@@ -89,24 +90,28 @@ def draw_menu_screen():
 def draw_lines():
     for i in range(0, row_length + 1):  # draws 8 horizontal lines, 9 rows
         if i % 3 == 0:  # if statement to make every 3rd line thicker for visual purposes
-            pygame.draw.line(screen, line_color, (100, (i * square_size) + 100), (width-100, (i * square_size) + 100),
+            pygame.draw.line(screen, line_color, (100, (i * square_size) + 100), (width - 100, (i * square_size) + 100),
                              line_width + 4)  # assuming screen 900 x 900
         else:
-            pygame.draw.line(screen, line_color, (100, (i * square_size) + 100), (width-100, (i * square_size) + 100), line_width)
+            pygame.draw.line(screen, line_color, (100, (i * square_size) + 100), (width - 100, (i * square_size) + 100),
+                             line_width)
 
     for i in range(0, col_length + 1):  # draws 8 vertical lines
         if i % 3 == 0:  # if statement to make every 3rd line thicker for visual purposes
-            pygame.draw.line(screen, line_color, ((i * square_size) + 100, 100), ((i * square_size) + 100, height - 200), line_width + 4)
+            pygame.draw.line(screen, line_color, ((i * square_size) + 100, 100),
+                             ((i * square_size) + 100, height - 200), line_width + 4)
         else:
-            pygame.draw.line(screen, line_color, ((i * square_size) + 100, 100), ((i * square_size) + 100, height - 200), line_width)
+            pygame.draw.line(screen, line_color, ((i * square_size) + 100, 100),
+                             ((i * square_size) + 100, height - 200), line_width)
+
 
 def display_values(board):
-    #offset to fit numbers in boxes
+    # offset to fit numbers in boxes
     offset = 110
-    for i in range(0,9):
-        for j in range(0,9):
+    for i in range(0, 9):
+        for j in range(0, 9):
             output = board[i][j]
-            #checks if the box is filled
+            # checks if the box is filled
             if output > 0:
                 n_text = number_font.render(str(output), True, pygame.Color('black'))
                 screen.blit(n_text, pygame.Vector2((j * square_size) + offset, (i * square_size) + offset))
@@ -124,13 +129,14 @@ def buttonmaker(name, width, height):
 
 
 def main():  # contains code to create different screens of project
-    #difcul used to track amount of
+    # difcul used to track amount of
     difcul = draw_menu_screen()
     pygame.display.set_caption("Sudoku Game")
     screen.fill(BG_COLOR)  # changes background color
     draw_lines()
     sudokuboard = generate_sudoku(9, difcul)
     display_values(sudokuboard)
+    board = Board(width, height, screen, difcul)
 
     while True:
         resetvar = buttonmaker('RESET', width // 2 - 250, height - 150)
@@ -156,15 +162,34 @@ def main():  # contains code to create different screens of project
                 # the code below uses a mouse click to select a square
                 x, y = event.pos
                 row, col = (y // square_size) - 1, (x // square_size) - 1  # "- 1" so it is from 0 to 8 (9 total cells)
+                pygame.display.update()
+
 
                 if 0 <= row < 9 and 0 <= col < 9:
-                    # board.select(row, col) # works if board class is implemented
-                    pygame.draw.rect(screen, RED, (x, y, width, height))
+                    pygame.draw.rect(screen, RED, pygame.Rect(col * square_size + 100, row * square_size + 100, square_size, square_size), line_width)  # had to do "+ 100" to correct the position. i dont know why it wont work normally
+                    # the red boxes dont select right. you can click to the left of a box and it will highlight the right one. i dont know why yet
+                    board.select(int(row), int(col))
                     pygame.display.update()
+                    '''
+                    This code below was me trying to get a digit to appear on the board but i couldnt get any further 
+                    because i didnt know how to proceed.
+                    
+                        digit = int(input("enter a number: "))
+                        board.place_number(digit)
+                        pygame.display.update()
+                        digit_font = pygame.font.Font(None, 100)
+                        digit_surf = digit_font.render(str(digit), 0, line_color)
+                        digit_rect = digit_surf.get_rect(center=(
+                            col * square_size + square_size // 2,  # x coor
+                            row * square_size + square_size // 2))  # y coor
+                        screen.blit(digit_surf, digit_rect)
+                    '''
+
+
                     # draws a red rectangle around selected cell
 
-        screen.fill(BG_COLOR)
-        draw_lines()
+        # screen.fill(BG_COLOR) # commented this out because it covers the restart buttons and the red square immediate
+        # draw_lines()  # commented this out because the lines cover the red squares
         display_values(sudokuboard)
         pygame.display.update()
 
