@@ -127,6 +127,27 @@ def buttonmaker(name, width, height):
     screen.blit(exit_surface, exit_rectangle)
     return exit_rectangle
 
+def userinput(screen, pos, board):
+    #Makes the position into two variables
+    x, y = int(pos[1] // square_size), int(pos[0] // square_size)
+    while True:
+        for event in pygame.event.get():
+            #Check to see if the program has ended
+            if event == pygame.QUIT:
+                return
+            #Check to see if a button is pressed
+            if event.type == pygame.KEYDOWN:
+                #If the position is taken, don't do anything
+                if board[x-1][y-1] != 0:
+                    return
+                #Makes sure the key press is 1-9
+                if(48 < event.key <= (48+9)):
+                    pygame.draw.rect(screen, BG_COLOR, (pos[0]*square_size + 5, pos[1]*square_size + 5, square_size - 5, square_size - 5))
+                    value = number_font.render(str(event.key-48), True, 'red')
+                    screen.blit(value, (pos[0]*square_size + 15, pos[1]*square_size))
+                    pygame.display.update()
+                    board[x - 1][y - 1] = event.key - 48
+                    return board
 
 def main():  # contains code to create different screens of project
     # difcul used to track amount of
@@ -135,6 +156,7 @@ def main():  # contains code to create different screens of project
     screen.fill(BG_COLOR)  # changes background color
     draw_lines()
     sudokuboard = generate_sudoku(9, difcul)
+    defsudoku = sudokuboard
     display_values(sudokuboard)
     board = Board(width, height, screen, difcul)
     # cell = Cell(value, row, col, screen, width, height)
@@ -151,7 +173,8 @@ def main():  # contains code to create different screens of project
                 if resetvar.collidepoint(event.pos):
                     screen.fill(BG_COLOR)  # changes background color
                     draw_lines()
-                    display_values(sudokuboard)
+                    display_values(defsudoku)
+                    sudokuboard = defsudoku
                     continue
                 elif restartvar.collidepoint(event.pos):
                     main()
@@ -159,44 +182,17 @@ def main():  # contains code to create different screens of project
                 elif exitvar.collidepoint(event.pos):
                     pygame.quit()
                     sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:  # might need to add and not is_full
-                # the code below uses a mouse click to select a square
-                x, y = event.pos
-                row, col = (y // square_size) - 1, (x // square_size) - 1  # "- 1" so it is from 0 to 8 (9 total cells)
-                pygame.display.update()
+                elif event.button == 1:
+                    pos = pygame.mouse.get_pos()
+                    print(sudokuboard)
+                    sudokuboard = userinput(screen,pos,sudokuboard)
+                    print(sudokuboard)
 
-                if 0 <= row < 9 and 0 <= col < 9:
-                    board.select(int(row), int(col))
-                    pygame.draw.rect(screen, RED, pygame.Rect(col * square_size + 100, row * square_size + 100, square_size, square_size), line_width)  # had to do "+ 100" to correct the position. i dont know why it wont work normally
-                    # the red boxes dont select right. you can click to the left of a box and it will highlight the right one. i dont know why yet
-
-                    pygame.display.update()
-
-                    if event.type == pygame.KEYDOWN:
-                        if pygame.K_1 <= event.key <= pygame.K_9:  # allows for number input 1-9
-                            if board.selected_cell:
-                                board.place_number(event.key - pygame.K_0)  # creates digit
-                                pygame.display.update()
-
-                    for row in range(9):  # supposed to render digits onto the screen
-                        for col in range(9):
-                            cell = board.cells[row][col]
-                            if cell.value != 0:
-                                digit_font = pygame.font.Font(None, 100)
-                                digit_surf = digit_font.render(str(digit), True, line_color)
-                                digit_rect = digit_surf.get_rect(center=(
-                                    col * square_size + square_size // 2,  # x coor
-                                    row * square_size + square_size // 2))  # y coor
-                                screen.blit(digit_surf, digit_rect)
-
-
-
-                    # draws a red rectangle around selected cell
+        display_values(sudokuboard)
+        pygame.display.update()
 
         # screen.fill(BG_COLOR) # commented this out because it covers the restart buttons and the red square immediate
         # draw_lines()  # commented this out because the lines cover the red squares
-        display_values(sudokuboard)
-        pygame.display.update()
 
 
 if __name__ == '__main__':
