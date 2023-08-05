@@ -137,6 +137,7 @@ def main():  # contains code to create different screens of project
     sudokuboard = generate_sudoku(9, difcul)
     display_values(sudokuboard)
     board = Board(width, height, screen, difcul)
+    # cell = Cell(value, row, col, screen, width, height)
 
     while True:
         resetvar = buttonmaker('RESET', width // 2 - 250, height - 150)
@@ -164,26 +165,30 @@ def main():  # contains code to create different screens of project
                 row, col = (y // square_size) - 1, (x // square_size) - 1  # "- 1" so it is from 0 to 8 (9 total cells)
                 pygame.display.update()
 
-
                 if 0 <= row < 9 and 0 <= col < 9:
+                    board.select(int(row), int(col))
                     pygame.draw.rect(screen, RED, pygame.Rect(col * square_size + 100, row * square_size + 100, square_size, square_size), line_width)  # had to do "+ 100" to correct the position. i dont know why it wont work normally
                     # the red boxes dont select right. you can click to the left of a box and it will highlight the right one. i dont know why yet
-                    board.select(int(row), int(col))
+
                     pygame.display.update()
-                    '''
-                    This code below was me trying to get a digit to appear on the board but i couldnt get any further 
-                    because i didnt know how to proceed.
-                    
-                        digit = int(input("enter a number: "))
-                        board.place_number(digit)
-                        pygame.display.update()
-                        digit_font = pygame.font.Font(None, 100)
-                        digit_surf = digit_font.render(str(digit), 0, line_color)
-                        digit_rect = digit_surf.get_rect(center=(
-                            col * square_size + square_size // 2,  # x coor
-                            row * square_size + square_size // 2))  # y coor
-                        screen.blit(digit_surf, digit_rect)
-                    '''
+
+                    if event.type == pygame.KEYDOWN:
+                        if pygame.K_1 <= event.key <= pygame.K_9:  # allows for number input 1-9
+                            if board.selected_cell:
+                                board.place_number(event.key - pygame.K_0)  # creates digit
+                                pygame.display.update()
+
+                    for row in range(9):  # supposed to render digits onto the screen
+                        for col in range(9):
+                            cell = board.cells[row][col]
+                            if cell.value != 0:
+                                digit_font = pygame.font.Font(None, 100)
+                                digit_surf = digit_font.render(str(digit), True, line_color)
+                                digit_rect = digit_surf.get_rect(center=(
+                                    col * square_size + square_size // 2,  # x coor
+                                    row * square_size + square_size // 2))  # y coor
+                                screen.blit(digit_surf, digit_rect)
+
 
 
                     # draws a red rectangle around selected cell
