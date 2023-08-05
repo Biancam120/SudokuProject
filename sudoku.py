@@ -139,7 +139,7 @@ def userinput(screen, pos, board):
             if event.type == pygame.KEYDOWN:
                 #If the position is taken, don't do anything
                 if board[x-1][y-1] != 0:
-                    return
+                    return board
                 #Makes sure the key press is 1-9
                 if(48 < event.key <= (48+9)):
                     pygame.draw.rect(screen, BG_COLOR, (pos[0]*square_size + 5, pos[1]*square_size + 5, square_size - 5, square_size - 5))
@@ -187,7 +187,6 @@ def main():  # contains code to create different screens of project
                     print(sudokuboard)
                     sudokuboard = userinput(screen,pos,sudokuboard)
                     print(sudokuboard)
-
         display_values(sudokuboard)
         pygame.display.update()
 
