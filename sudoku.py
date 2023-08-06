@@ -88,6 +88,68 @@ def draw_menu_screen():
         pygame.display.update()
 
 
+def draw_game_won_screen():
+    pygame.display.set_caption("You Won!")
+    text_color = (0, 0, 0)
+    # title_font = pygame.font.Font(None, 100)
+    select_font = pygame.font.Font(None, 75)
+    button_font = pygame.font.Font(None, 50)
+    button_color = (231, 223, 176)
+    screen.fill(BG_COLOR)
+
+    win_text = "Game Won!"  # creates the game won text
+    win_surf = select_font.render(win_text, 0, text_color)
+    win_rect = win_surf.get_rect(center=(width // 2, height - 600))
+    screen.blit(win_surf, win_rect)
+
+    exit_text = button_font.render("EXIT", 0, text_color)  # creates the exit button
+    exit_surface = pygame.Surface((exit_text.get_size()[0] + 20, exit_text.get_size()[1] + 20))
+    exit_surface.fill(button_color)
+    exit_surface.blit(exit_text, (10, 10))
+    exit_rectangle = exit_surface.get_rect(center=(width // 2, height - 200))
+    screen.blit(exit_surface, exit_rectangle)
+
+    while True:  # this keeps the user on this screen until they press exit
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if exit_rectangle.collidepoint(event.pos):
+                    sys.exit()
+        pygame.display.update()
+
+
+def draw_game_over_screen():
+    pygame.display.set_caption("You Lost")
+    text_color = (0, 0, 0)
+    # title_font = pygame.font.Font(None, 100)
+    select_font = pygame.font.Font(None, 75)
+    button_font = pygame.font.Font(None, 50)
+    button_color = (231, 223, 176)
+    screen.fill(BG_COLOR)
+
+    over_text = "Game Over :("  # creates the game over text
+    over_surf = select_font.render(over_text, 0, text_color)
+    over_rect = over_surf.get_rect(center=(width // 2, height - 600))
+    screen.blit(over_surf, over_rect)
+
+    restart_text = button_font.render("RESTART", 0, text_color)  # creates the restart button
+    restart_surface = pygame.Surface((restart_text.get_size()[0] + 20, restart_text.get_size()[1] + 20))
+    restart_surface.fill(button_color)
+    restart_surface.blit(restart_text, (10, 10))
+    restart_rectangle = restart_surface.get_rect(center=(width // 2, height - 200))
+    screen.blit(restart_surface, restart_rectangle)
+
+    while True:  # this keeps the user on this screen until they press restart
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if restart_rectangle.collidepoint(event.pos):
+                    main()
+        pygame.display.update()
+
+
 def draw_lines():
     for i in range(0, row_length + 1):  # draws 8 horizontal lines, 9 rows
         if i % 3 == 0:  # if statement to make every 3rd line thicker for visual purposes
@@ -186,7 +248,8 @@ def check_each_column(board):  # the other half of code to check a winning board
     col_count = 0
     run_count = 0
     while 0 <= j <= 8:  # runs 9 times for 9 rows
-        for i in range(0, 9): # this entire for loop makes one giant list of the columns with 81 digits from top down, left to right
+        for i in range(0,
+                       9):  # this entire for loop makes one giant list of the columns with 81 digits from top down, left to right
             j = j  # used to increment j without having to mess up j = 0 above
             row = board[i]  # sets a variable to store the ith row of the board
             column.append(row[j])  # appends the jth index of that row
@@ -195,7 +258,7 @@ def check_each_column(board):  # the other half of code to check a winning board
     column_sublist = [column[j:j + 9] for j in range(0, len(column), 9)]
     # takes the giant list of 81 digits and makes it into 9 different sublist representing each column of 9 digits
 
-    for i in range(0, 9):  # works the same function as check_horizontal
+    for i in range(0, 9):  # works the same function as check_each_row
         col = column_sublist[i]
         sudoku_col = set(col)
         valid_col = set(range(1, 10))
@@ -216,7 +279,8 @@ def main():  # contains code to create different screens of project
     screen.fill(BG_COLOR)  # changes background color
     draw_lines()
     sudoku_board = generate_sudoku(9, difficulty)  # generates the sudoku board
-    original_board = copy.deepcopy(sudoku_board)  # set original_board to the first un-edited list so the reset button calls this variable
+    original_board = copy.deepcopy(
+        sudoku_board)  # set original_board to the first un-edited list so the reset button calls this variable
     updated_sudoku = sudoku_board  # this variable is to keep track of the user inputs
     display_values(updated_sudoku)
 
@@ -249,9 +313,9 @@ def main():  # contains code to create different screens of project
                     if check_if_full(updated_sudoku):  # checks if board is full
                         if check_each_row(updated_sudoku) and check_each_column(updated_sudoku):
                             # if both horizontal and vertical conditions are satisfied, player has won
-                            print("won")
+                            draw_game_won_screen()
                         else:
-                            print("lost")
+                            draw_game_over_screen()
                     else:
                         continue
 
