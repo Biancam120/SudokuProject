@@ -1,4 +1,5 @@
 import pygame, sys
+import copy  # thank you chat GPT. lets me use copy.deepcopy() to store the original sudoku board to reset it
 from sudoku_generator import *
 
 pygame.init()  # pygame is only used in this file
@@ -127,71 +128,134 @@ def buttonmaker(name, width, height):
     screen.blit(exit_surface, exit_rectangle)
     return exit_rectangle
 
+
 def userinput(screen, pos, board):
-    #Makes the position into two variables
+    # Makes the position into two variables
     x, y = int(pos[1] // square_size), int(pos[0] // square_size)
     while True:
         for event in pygame.event.get():
-            #Check to see if the program has ended
+            # Check to see if the program has ended
             if event == pygame.QUIT:
                 return
-            #Check to see if a button is pressed
+            # Check to see if a button is pressed
             if event.type == pygame.KEYDOWN:
-                #If the position is taken, don't do anything
-                if board[x-1][y-1] != 0:
+                # If the position is taken, don't do anything
+                if board[x - 1][y - 1] != 0:
                     return board
-                #Makes sure the key press is 1-9
-                if(48 < event.key <= (48+9)):
-                    pygame.draw.rect(screen, BG_COLOR, (pos[0]*square_size + 5, pos[1]*square_size + 5, square_size - 5, square_size - 5))
-                    value = number_font.render(str(event.key-48), True, 'red')
-                    screen.blit(value, (pos[0]*square_size + 15, pos[1]*square_size))
+                # Makes sure the key press is 1-9
+                if 48 < event.key <= (48 + 9):
+                    pygame.draw.rect(screen, BG_COLOR, (
+                        pos[0] * square_size + 5, pos[1] * square_size + 5, square_size - 5, square_size - 5))
+                    value = number_font.render(str(event.key - 48), True, 'red')
+                    screen.blit(value, (pos[0] * square_size + 15, pos[1] * square_size))
                     pygame.display.update()
                     board[x - 1][y - 1] = event.key - 48
                     return board
 
+
+def check_if_full(board):
+    # goes through each digit in the board and checks if it is 0. if it is, then return false
+    for row in board:
+        for digit in row:
+            if digit == 0:
+                return False
+    return True
+
+
+def check_each_row(board):  # half of the code used to check a solved sudoku board
+    row_count = 0  # keep track of how many correct rows there are
+    run_count = 0  # keep track of how many iterations
+    for i in range(0, 9):  # for the entire board, iterate through each row
+        row = board[i]  # set a variable equal to the ith row
+        sudoku_row = set(row)  # turn the list into a set
+        valid_row = set(range(1, 10))  # make a set that contains the digits 1-9
+        if sudoku_row == valid_row:  # checks to see if the current row is a valid row
+            row_count += 1  # if it is, increase row and run count by 1
+            run_count += 1
+        else:
+            run_count += 1  # else, only increase the run
+        if run_count == 9 and row_count == 9:  # if both run and row count are 9, return true
+            return True
+        elif run_count == 9 and row_count < 9:
+            return False
+
+
+def check_each_column(board):  # the other half of code to check a winning board
+    column = []  # empty list to store sliced list
+    j = 0  # j is used to indicate the jth index of the sliced board list
+    col_count = 0
+    run_count = 0
+    while 0 <= j <= 8:  # runs 9 times for 9 rows
+        for i in range(0, 9): # this entire for loop makes one giant list of the columns with 81 digits from top down, left to right
+            j = j  # used to increment j without having to mess up j = 0 above
+            row = board[i]  # sets a variable to store the ith row of the board
+            column.append(row[j])  # appends the jth index of that row
+        j += 1  # increases j by 1, essentially moving right a column
+
+    column_sublist = [column[j:j + 9] for j in range(0, len(column), 9)]
+    # takes the giant list of 81 digits and makes it into 9 different sublist representing each column of 9 digits
+
+    for i in range(0, 9):  # works the same function as check_horizontal
+        col = column_sublist[i]
+        sudoku_col = set(col)
+        valid_col = set(range(1, 10))
+        if sudoku_col == valid_col:
+            col_count += 1
+            run_count += 1
+        else:
+            run_count += 1
+        if run_count == 9 and col_count == 9:
+            return True
+        elif run_count == 9 and col_count < 9:
+            return False
+
+
 def main():  # contains code to create different screens of project
-    # difcul used to track amount of
-    difcul = draw_menu_screen()
+    difficulty = draw_menu_screen()
     pygame.display.set_caption("Sudoku Game")
     screen.fill(BG_COLOR)  # changes background color
     draw_lines()
-    sudokuboard = generate_sudoku(9, difcul)
-    defsudoku = sudokuboard
-    display_values(sudokuboard)
-    board = Board(width, height, screen, difcul)
-    # cell = Cell(value, row, col, screen, width, height)
+    sudoku_board = generate_sudoku(9, difficulty)  # generates the sudoku board
+    original_board = copy.deepcopy(sudoku_board)  # set original_board to the first un-edited list so the reset button calls this variable
+    updated_sudoku = sudoku_board  # this variable is to keep track of the user inputs
+    display_values(updated_sudoku)
 
     while True:
-        resetvar = buttonmaker('RESET', width // 2 - 250, height - 150)
-        restartvar = buttonmaker('RESTART', width // 2, height - 150)
-        exitvar = buttonmaker('EXIT', width // 2 + 250, height - 150)
+        reset_var = buttonmaker('RESET', width // 2 - 250, height - 150)
+        restart_var = buttonmaker('RESTART', width // 2, height - 150)
+        exit_var = buttonmaker('EXIT', width // 2 + 250, height - 150)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()  # can close window
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:  # might need to add and not is_full
-                if resetvar.collidepoint(event.pos):
+                if reset_var.collidepoint(event.pos):
                     screen.fill(BG_COLOR)  # changes background color
                     draw_lines()
-                    display_values(defsudoku)
-                    sudokuboard = defsudoku
+                    display_values(original_board)  # reverts the board to initial value
+                    updated_sudoku = copy.deepcopy(original_board)  # this is to reset updated_sudoku
                     continue
-                elif restartvar.collidepoint(event.pos):
+                elif restart_var.collidepoint(event.pos):
                     main()
                     break
-                elif exitvar.collidepoint(event.pos):
+                elif exit_var.collidepoint(event.pos):
                     pygame.quit()
                     sys.exit()
                 elif event.button == 1:
                     pos = pygame.mouse.get_pos()
-                    print(sudokuboard)
-                    sudokuboard = userinput(screen,pos,sudokuboard)
-                    print(sudokuboard)
-        display_values(sudokuboard)
-        pygame.display.update()
+                    updated_sudoku = userinput(screen, pos, updated_sudoku)  # input the number user chooses
+                    display_values(updated_sudoku)
+                    # print(["u"] + updated_sudoku)  <- degubbing purposes, please leave this here for me if you work on it
+                    if check_if_full(updated_sudoku):  # checks if board is full
+                        if check_each_row(updated_sudoku) and check_each_column(updated_sudoku):
+                            # if both horizontal and vertical conditions are satisfied, player has won
+                            print("won")
+                        else:
+                            print("lost")
+                    else:
+                        continue
 
-        # screen.fill(BG_COLOR) # commented this out because it covers the restart buttons and the red square immediate
-        # draw_lines()  # commented this out because the lines cover the red squares
+        pygame.display.update()
 
 
 if __name__ == '__main__':
